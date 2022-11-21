@@ -5,23 +5,20 @@ using UnityEngine;
 
 public class GridGenerator : MonoBehaviour
 {
-    [SerializeField] public int sides;
+    //Variables iniciales para crear el tablero de juego
     [SerializeField] Tile tilesPrefab;
     public Tile[,] spawnedPrefab;
 
+    //Ajustes de posicion del jugador y la camara
     [SerializeField] Transform cameraPosition;
     [SerializeField] PlayerController playerController;
 
     int xPos, yPos;
 
-    private void Awake()
+    public void GenerateGrid(int sides)
     {
         spawnedPrefab = new Tile[sides, sides];
-        GenerateGrid();
-    }
-
-    void GenerateGrid()
-    {
+        //Generamos el terreno
         for (int i = 0; i < sides; i++)
         {
             for (int j = 0; j < sides; j++)
@@ -31,6 +28,7 @@ public class GridGenerator : MonoBehaviour
             }
         }
 
+        //Ajustamos la posicion del jugador a una posicion inicial aleatoria dentro del tablero y lo Inicializamos
         xPos = Random.Range(1, sides);
         yPos = Random.Range(1, sides);
         cameraPosition.position = new Vector3(xPos, yPos, 0);

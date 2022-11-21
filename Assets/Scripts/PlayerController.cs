@@ -21,20 +21,21 @@ public class PlayerController : MonoBehaviour
     PlayerConquest playerConquest;
     Tile checkTile;
 
-    // Start is called before the first frame update
     void Awake()
     {
         Debug.Log("[HDD] - Exploration Phase Started");
         gamePhase = 0;      
         playerConquest = GetComponent<PlayerConquest>();
+        gameObject.SetActive(false);
     }
 
+    //inicializamos el jugador, asignando sus valores de movimiento al valor de posicion donde Spawneo.
     public void StartPlayer()
     {
         movePoint = transform.position;
+        gameObject.SetActive(true);
     }
 
-    // Update is called once per frame
     void Update()
     {
         //Primera estapa de exploracion. El jugador puede moverse libremente por el mapa y tomar el primer territorio que desee
@@ -53,7 +54,8 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if((inputs.x != 0 || inputs.y != 0) && !moving)
+            //Logica disponible para usar los muros 
+            if ((inputs.x != 0 || inputs.y != 0) && !moving)
             {
                 Vector2 checkPoint = new Vector2(transform.position.x, transform.position.y) + offsetMovePoint + inputs;
                 
@@ -64,6 +66,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Una vez el jugador escoge un punto inicial, se comienza el juego principal.
             if(Input.GetButtonDown("Jump") && !moving)
             {
                 Debug.Log("[HDD] - Exploration Phase Ended");
@@ -89,6 +92,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Verifica que el terreno al que se quiere mover, es un terreno del jugador.
             if ((inputs.x != 0 || inputs.y != 0) && !moving)
             {
                 Vector2 checkPoint = new Vector2(transform.position.x, transform.position.y) + offsetMovePoint + inputs;
@@ -122,6 +126,7 @@ public class PlayerController : MonoBehaviour
             {
                 Vector2 checkPoint = new Vector2(transform.position.x, transform.position.y) + offsetMovePoint + inputs;
 
+                //Logica disponible para usar los muros 
                 if (!Physics2D.OverlapCircle(checkPoint, detectRadius, obstacles))
                 {
                     moving = true;
@@ -129,6 +134,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Toma de territorios cada X tiempo
             if (Input.GetButtonDown("Jump") && !moving)
             {
                 Debug.Log("[HDD] - Terrain Taked");
