@@ -2,13 +2,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public bool explorer;
+    public int gamePhase;
 
     [Header("Player Stats")]
     [SerializeField] float speed;
-    [SerializeField] Color teamColor;
     [SerializeField] Color wallTeamColor;
-    [SerializeField] public string playerName;
     Vector2 movePoint;
 
     [Header("Player Movement")]
@@ -19,15 +17,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("Other Settings")]
     [SerializeField] CycleManager cycleManager;
-    [SerializeField] GridGenerator grids;
     Vector2 inputs;
     PlayerConquest playerConquest;
+    Tile checkTile;
 
     // Start is called before the first frame update
     void Awake()
     {
         Debug.Log("[HDD] - Exploration Phase Started");
-        explorer = true;      
+        gamePhase = 0;      
         playerConquest = GetComponent<PlayerConquest>();
     }
 
@@ -39,7 +37,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (explorer)
+        //Primera estapa de exploracion. El jugador puede moverse libremente por el mapa y tomar el primer territorio que desee
+        if (gamePhase == 0)
         {
             inputs.x = (int)Input.GetAxis("Horizontal");
             inputs.y = (int)Input.GetAxis("Vertical");
@@ -67,12 +66,44 @@ public class PlayerController : MonoBehaviour
 
             if(Input.GetButtonDown("Jump") && !moving)
             {
-                explorer = false;
                 Debug.Log("[HDD] - Exploration Phase Ended");
+                playerConquest.TakeTerrain();
+                gamePhase = 1;
+                cycleManager.phase = 1;
             }
         }
 
-        if (!explorer)
+        //Segunda estapa de planeacion. El jugador puede moverse solo por su ciudad.
+        if (gamePhase == 1)
+        {
+            inputs.x = (int)Input.GetAxis("Horizontal");
+            inputs.y = (int)Input.GetAxis("Vertical");
+
+            if (moving)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, movePoint, speed * Time.deltaTime);
+
+                if (Vector2.Distance(transform.position, movePoint) == 0)
+                {
+                    moving = false;
+                }
+            }
+
+            if ((inputs.x != 0 || inputs.y != 0) && !moving)
+            {
+                Vector2 checkPoint = new Vector2(transform.position.x, transform.position.y) + offsetMovePoint + inputs;
+
+                if (playerConquest.grids.spawnedPrefab[(int)checkPoint.x, (int)checkPoint.y].teamName ==
+                    playerConquest.playerName)
+                {
+                    moving = true;
+                    movePoint += inputs;
+                }
+            }
+        }
+
+        //El jugador puede tomar un terrotorio cada cierto tiempo
+        if(gamePhase == 2)
         {
             inputs.x = (int)Input.GetAxis("Horizontal");
             inputs.y = (int)Input.GetAxis("Vertical");
@@ -100,13 +131,10 @@ public class PlayerController : MonoBehaviour
 
             if (Input.GetButtonDown("Jump") && !moving)
             {
+                Debug.Log("[HDD] - Terrain Taked");
+                playerConquest.TakeTerrain();
+                gamePhase = 1;
                 cycleManager.phase = 1;
-
-                int x = (int)transform.position.x;
-                int y = (int)transform.position.y;
-
-                grids.spawnedPrefab[(int)transform.position.x, (int)transform.position.y].ChangeColor(playerName, teamColor);
-                Debug.Log($"[HDD] - You Take the Terrotory {x} , {y}");
             }
         }
     }

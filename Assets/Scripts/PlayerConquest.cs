@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class PlayerConquest : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] Color teamColor;
+    [SerializeField] public string playerName; 
+    [SerializeField] public GridGenerator grids;
 
-    // Update is called once per frame
-    void Update()
+    public void TakeTerrain()
     {
-        
+        int x = (int)transform.position.x;
+        int y = (int)transform.position.y;
+
+        if (grids.spawnedPrefab[x,y].teamName != playerName)
+        {
+            grids.spawnedPrefab[(int)transform.position.x, (int)transform.position.y].ChangeColor(playerName, teamColor);
+            Debug.Log($"[HDD] - You Take the Terrotory {x} , {y}");
+        }
     }
 }

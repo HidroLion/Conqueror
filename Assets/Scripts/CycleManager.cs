@@ -14,7 +14,8 @@ public class CycleManager : MonoBehaviour
     private void Awake()
     {
         timer = 0;
-        phase = 0;
+        phase = -1;
+        // -1: First Exploration , 0: Explorer Mode, 1: Phase Transition, 2: Conquest Mode
     }
 
     private void Update()
@@ -25,17 +26,27 @@ public class CycleManager : MonoBehaviour
             if(timer > explorationTime)
             {
                 phase = 1;
-                playerController.explorer = false;
+                playerController.gamePhase = 1;
             }
         }
+
         if(phase == 1)
         {
             timer = 0;
             phase = 2;
         }
+
         if(phase == 2)
         {
             timer += Time.deltaTime;
+
+            if(timer >= coquistTime)
+            {
+                Debug.Log("[HDD] - Conquest Avaliable");
+                playerController.gamePhase = 2;
+                phase = 3;
+                timer = 0;
+            }
         }
     }
 }
