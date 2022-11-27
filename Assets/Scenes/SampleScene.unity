@@ -510,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explorationTime: 120
-  conquistTime: 5
+  conquistTime: 3
   playerController: {fileID: 1868157598}
   phaseText: {fileID: 1990274675}
   avaiableText: {fileID: 1506807109}
@@ -528,9 +528,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1af776232f59d714cbadffd82c756e37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numText: {fileID: 0}
-  gridGenerator: {fileID: 0}
-  sidesSelected: 0
 --- !u!1 &675422641
 GameObject:
   m_ObjectHideFlags: 0
@@ -1994,13 +1991,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gamePhase: 0
-  speed: 2
+  speed: 4
   wallTeamColor: {r: 0.028978268, g: 0.26519033, b: 0.41509432, a: 1}
   offsetMovePoint: {x: 0, y: 0}
   obstacles:
     serializedVersion: 2
     m_Bits: 0
   detectRadius: 0.5
+  movementDelay: 0.3
   cycleManager: {fileID: 604081907}
 --- !u!50 &1868157599
 Rigidbody2D:

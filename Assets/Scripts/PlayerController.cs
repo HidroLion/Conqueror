@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -13,6 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Vector2 offsetMovePoint;
     [SerializeField] LayerMask obstacles;
     [SerializeField] float detectRadius;
+    [SerializeField] float movementDelay = 0.3f;
     bool moving = false;
 
     [Header("Other Settings")]
@@ -41,18 +43,7 @@ public class PlayerController : MonoBehaviour
         //Primera estapa de exploracion. El jugador puede moverse libremente por el mapa y tomar el primer territorio que desee
         if (gamePhase == 0)
         {
-            inputs.x = (int)Input.GetAxis("Horizontal");
-            inputs.y = (int)Input.GetAxis("Vertical");
-
-            if (moving)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, movePoint, speed * Time.deltaTime);
-
-                if(Vector2.Distance(transform.position, movePoint) == 0)
-                {
-                    moving = false;
-                }
-            }
+            ChechInput();
 
             //Logica disponible para usar los muros 
             if ((inputs.x != 0 || inputs.y != 0) && !moving)
@@ -79,18 +70,7 @@ public class PlayerController : MonoBehaviour
         //Segunda estapa de planeacion. El jugador puede moverse solo por su ciudad.
         if (gamePhase == 1)
         {
-            inputs.x = (int)Input.GetAxis("Horizontal");
-            inputs.y = (int)Input.GetAxis("Vertical");
-
-            if (moving)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, movePoint, speed * Time.deltaTime);
-
-                if (Vector2.Distance(transform.position, movePoint) == 0)
-                {
-                    moving = false;
-                }
-            }
+            ChechInput();
 
             //Verifica que el terreno al que se quiere mover, es un terreno del jugador.
             if ((inputs.x != 0 || inputs.y != 0) && !moving)
@@ -109,30 +89,32 @@ public class PlayerController : MonoBehaviour
         //El jugador puede tomar un terrotorio cada cierto tiempo
         if(gamePhase == 2)
         {
-            inputs.x = (int)Input.GetAxis("Horizontal");
-            inputs.y = (int)Input.GetAxis("Vertical");
+            ChechInput();
 
-            if (moving)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, movePoint, speed * Time.deltaTime);
-
-                if (Vector2.Distance(transform.position, movePoint) == 0)
-                {
-                    moving = false;
-                }
-            }
-
+            //Verifica que el terreno al que se quiere mover no ha sido tomado, si es asi, detiene el movimiento en ese punto
             if ((inputs.x != 0 || inputs.y != 0) && !moving)
             {
                 Vector2 checkPoint = new Vector2(transform.position.x, transform.position.y) + offsetMovePoint + inputs;
 
-                //Logica disponible para usar los muros 
-                if (!Physics2D.OverlapCircle(checkPoint, detectRadius, obstacles))
+                if (playerConquest.grids.spawnedPrefab[(int)checkPoint.x, (int)checkPoint.y].teamName ==
+                    playerConquest.playerName)
                 {
                     moving = true;
                     movePoint += inputs;
                 }
+                else if (playerConquest.grids.spawnedPrefab[(int)checkPoint.x, (int)checkPoint.y].teamName ==
+                    " ")
+                {
+                    moving = true;
+                    movePoint += inputs;
+                    gamePhase = 3;
+                }
             }
+        }
+
+        if (gamePhase == 3)
+        {
+            ChechInput();
 
             //Toma de territorios cada X tiempo
             if (Input.GetButtonDown("Jump") && !moving)
@@ -141,6 +123,23 @@ public class PlayerController : MonoBehaviour
                 playerConquest.TakeTerrain();
                 gamePhase = 1;
                 cycleManager.phase = 1;
+            }
+        }
+    }
+
+    void ChechInput()
+    {
+        inputs.x = Input.GetAxisRaw("Horizontal");
+        inputs.y = Input.GetAxisRaw("Vertical");
+
+
+        if (moving)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, movePoint, speed * Time.deltaTime);
+
+            if (Vector2.Distance(transform.position, movePoint) == 0)
+            {
+                moving = false;
             }
         }
     }
